@@ -1,6 +1,5 @@
 package ru.maxima.dto;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -9,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
 public class UrlDTO {
 
     @NotEmpty
