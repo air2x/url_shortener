@@ -7,6 +7,8 @@ import ru.maxima.dto.UrlDTO;
 import ru.maxima.models.Url;
 import ru.maxima.repositories.UrlRepositories;
 
+import java.util.Random;
+
 @Service
 public class UrlService {
 
@@ -25,8 +27,13 @@ public class UrlService {
     }
 
 //    Создание короткой ссылки по полному URL, короткая ссылка содержит символы из диапазона: [0-9, a-z].
-    public String shortening(String originalUrl) {
-        return "";
+    private String shortening(String originalUrl) {
+        StringBuilder url = null;
+        Random random = new Random();
+        for (int i = 0; i < 7; i++) {
+            url.append(Character.toString(random.nextInt(10)));
+        }
+        return url.toString();
     }
 
     private Url convertToUrl(UrlDTO urlDTO) {
