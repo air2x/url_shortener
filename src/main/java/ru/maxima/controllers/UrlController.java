@@ -1,12 +1,13 @@
 package ru.maxima.controllers;
 
 import jakarta.validation.Valid;
-import lombok.Getter;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 import ru.maxima.dto.UrlRequestDTO;
 import ru.maxima.dto.UrlResponseDTO;
 import ru.maxima.models.Url;
@@ -17,10 +18,12 @@ import ru.maxima.service.UrlService;
 public class UrlController {
 
     private final UrlService urlService;
+    private final ModelMapper modelMapper;
 
     @Autowired
-    public UrlController(UrlService urlService) {
+    public UrlController(UrlService urlService, ModelMapper modelMapper) {
         this.urlService = urlService;
+        this.modelMapper = modelMapper;
     }
 
     @PostMapping("/shortening")
@@ -30,21 +33,21 @@ public class UrlController {
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        Url savedUrl = urlService.saveUrl(urlRequestDTO.getOriginalUrl());
-        UrlResponseDTO urlResponseDTO = new UrlResponseDTO();
-        urlResponseDTO.setGeneratedUrl(savedUrl.getGeneratedUrl());
+        Url url = urlService.saveUrl(urlRequestDTO.getOriginalUrl());
+        UrlResponseDTO urlResponseDTO = modelMapper.map(url, UrlResponseDTO.class);
         return ResponseEntity.ok(urlResponseDTO);
     }
 
     @GetMapping("/{shortUrl}")
-    public ResponseEntity<UrlResponseDTO> getUrl(@PathVariable String shortUrl) {
-        Url url = urlService.findByShortName(shortUrl);
-        if (url == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            UrlResponseDTO urlResponseDTO = new UrlResponseDTO();
-            urlResponseDTO.setGeneratedUrl(url.getGeneratedUrl());
-            return ResponseEntity.ok(urlResponseDTO);
-        }
+    public RedirectView redirect(@PathVariable String shortUrl) {
+        UrlResponseDTO urlResponseDTO = modelMapper.map(urlService.findByShortName(shortUrl), UrlResponseDTO.class);
+        urlService.saveClickOnUrl(shortUrl);
+        return new RedirectView(urlResponseDTO.getOriginalUrl());
+    }
+
+    @GetMapping("/statistics/{shortUrl}")
+    public Integer getStatisticsClicksOnUrl(@PathVariable String shortUrl) {
+        UrlResponseDTO urlResponseDTO = modelMapper.map(urlService.findByShortName(shortUrl), UrlResponseDTO.class);
+        return urlResponseDTO.getNumberOfClicks();
     }
 }
