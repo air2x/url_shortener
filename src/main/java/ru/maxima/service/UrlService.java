@@ -1,9 +1,7 @@
 package ru.maxima.service;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.maxima.dto.UrlDTO;
 import ru.maxima.models.Url;
 import ru.maxima.repositories.UrlRepositories;
 
@@ -13,34 +11,38 @@ import java.util.Random;
 public class UrlService {
 
     private final UrlRepositories urlRepositories;
-    private final ModelMapper modelMapper;
+    private final static String AVAILABLE_SYMBOLS = "0123456789abcdefghijklmnopqrtuvwxyz";
 
     @Autowired
-    public UrlService(UrlRepositories urlRepositories, ModelMapper modelMapper) {
+    public UrlService(UrlRepositories urlRepositories) {
         this.urlRepositories = urlRepositories;
-        this.modelMapper = modelMapper;
     }
 
-    public void saveUrl(UrlDTO urlDTO) {
-        urlDTO.setGeneratedUrl(shortening(urlDTO.getOriginalUrl()));
-        urlRepositories.save(convertToUrl(urlDTO));
-    }
-
-//    Создание короткой ссылки по полному URL, короткая ссылка содержит символы из диапазона: [0-9, a-z].
-    private String shortening(String originalUrl) {
-        StringBuilder url = null;
-        Random random = new Random();
-        for (int i = 0; i < 7; i++) {
-            url.append(Character.toString(random.nextInt(10)));
+    public Url saveUrl(String urlString) {
+        Url url = new Url();
+        if (urlRepositories.findByOriginalUrl(urlString).isPresent()) {
+            throw new RuntimeException("This URL exists");
+        } else {
+            url.setOriginalUrl(urlString);
+            String shorteningString = shortening();
+            url.setGeneratedUrl(shorteningString);
+            urlRepositories.save(url);
         }
+        return url;
+    }
+
+    private String shortening() {
+        StringBuilder url = new StringBuilder();
+        Random random = new Random();
+        do {
+            for (int i = 0; i < 7; i++) {
+                url.append(AVAILABLE_SYMBOLS.charAt(random.nextInt(AVAILABLE_SYMBOLS.length())));
+            }
+        } while (findByShortName(url.toString()) != null);
         return url.toString();
     }
 
-    private Url convertToUrl(UrlDTO urlDTO) {
-        return modelMapper.map(urlDTO, Url.class);
-    }
-
-    private UrlDTO convertToUrlDTO(Url url) {
-        return modelMapper.map(url, UrlDTO.class);
+    public Url findByShortName(String shortUrl) {
+        return urlRepositories.findByGeneratedUrl(shortUrl).orElse(null);
     }
 }
