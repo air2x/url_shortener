@@ -8,6 +8,7 @@ import ru.maxima.dto.UrlResponseDTO;
 import ru.maxima.models.Url;
 import ru.maxima.repositories.UrlRepositories;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -32,6 +33,7 @@ public class UrlService {
         } else {
             url.setOriginalUrl(urlString);
             url.setGeneratedUrl(shortening());
+            url.setCreationTime(LocalDateTime.now());
             urlRepositories.save(url);
         }
         return url;

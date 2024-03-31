@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Entity
 @Getter
@@ -31,4 +33,7 @@ public class Url {
 
     @Column(name = "number_of_clicks")
     private int numberOfClicks;
+
+    @Column(name = "creation_time")
+    private LocalDateTime creationTime;
 }
