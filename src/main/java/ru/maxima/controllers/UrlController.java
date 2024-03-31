@@ -13,6 +13,8 @@ import ru.maxima.dto.UrlResponseDTO;
 import ru.maxima.models.Url;
 import ru.maxima.service.UrlService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping
 public class UrlController {
@@ -45,9 +47,8 @@ public class UrlController {
         return new RedirectView(urlResponseDTO.getOriginalUrl());
     }
 
-    @GetMapping("/statistics/{shortUrl}")
-    public Integer getStatisticsClicksOnUrl(@PathVariable String shortUrl) {
-        UrlResponseDTO urlResponseDTO = modelMapper.map(urlService.findByShortName(shortUrl), UrlResponseDTO.class);
-        return urlResponseDTO.getNumberOfClicks();
+    @GetMapping("/allStatistics")
+    public List<UrlResponseDTO> getAllStatisticsClicksOnUrl() {
+        return urlService.getStatisticClickOnUrl();
     }
 }

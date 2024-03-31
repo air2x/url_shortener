@@ -13,5 +13,4 @@ public interface UrlRepositories extends JpaRepository<Url, Integer> {
     Optional<Url> findByOriginalUrl(String originalUrl);
 
 
-
 }

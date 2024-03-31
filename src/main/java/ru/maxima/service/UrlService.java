@@ -4,20 +4,23 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.maxima.dto.UrlResponseDTO;
 import ru.maxima.models.Url;
 import ru.maxima.repositories.UrlRepositories;
 
-import java.util.Random;
+import java.util.*;
 
 @Service
 public class UrlService {
 
     private final UrlRepositories urlRepositories;
+    private final ModelMapper modelMapper;
     private final static String AVAILABLE_SYMBOLS = "0123456789abcdefghijklmnopqrtuvwxyz";
 
     @Autowired
-    public UrlService(UrlRepositories urlRepositories) {
+    public UrlService(UrlRepositories urlRepositories, ModelMapper modelMapper) {
         this.urlRepositories = urlRepositories;
+        this.modelMapper = modelMapper;
     }
 
     @Transactional
@@ -40,7 +43,18 @@ public class UrlService {
     @Transactional
     public void saveClickOnUrl(String shortUrl) {
         Url url = urlRepositories.findByGeneratedUrl(shortUrl).orElse(null);
-        url.setNumberOfClicks(url.getNumberOfClicks() + 1);
+        Objects.requireNonNull(url).setNumberOfClicks(url.getNumberOfClicks() + 1);
+    }
+
+    public List<UrlResponseDTO> getStatisticClickOnUrl() {
+        List<UrlResponseDTO> allUrlResponseDto = new ArrayList<>();
+        List<Url> allUrl = urlRepositories.findAll();
+        for (Url url : allUrl) {
+            UrlResponseDTO urlResponseDTO = modelMapper.map(url, UrlResponseDTO.class);
+            allUrlResponseDto.add(urlResponseDTO);
+        }
+        Collections.sort(allUrlResponseDto);
+        return allUrlResponseDto;
     }
 
     private String shortening() {
