@@ -15,6 +15,8 @@ import ru.maxima.service.UrlService;
 
 import java.util.List;
 
+import static ru.maxima.service.UrlService.LOCALHOST;
+
 @RestController
 @RequestMapping
 public class UrlController {
@@ -42,6 +44,7 @@ public class UrlController {
 
     @GetMapping("/{shortUrl}")
     public RedirectView redirect(@PathVariable String shortUrl) {
+        shortUrl = LOCALHOST + shortUrl;
         UrlResponseDTO urlResponseDTO = modelMapper.map(urlService.findByShortName(shortUrl), UrlResponseDTO.class);
         urlService.saveClickOnUrl(shortUrl);
         return new RedirectView(urlResponseDTO.getOriginalUrl());

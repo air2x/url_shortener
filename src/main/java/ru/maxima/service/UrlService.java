@@ -16,6 +16,7 @@ public class UrlService {
     private final UrlRepositories urlRepositories;
     private final ModelMapper modelMapper;
     private final static String AVAILABLE_SYMBOLS = "0123456789abcdefghijklmnopqrtuvwxyz";
+    public final static String LOCALHOST = "http://localhost:8080/";
 
     @Autowired
     public UrlService(UrlRepositories urlRepositories, ModelMapper modelMapper) {
@@ -59,6 +60,7 @@ public class UrlService {
 
     private String shortening() {
         StringBuilder url = new StringBuilder();
+        url.append(LOCALHOST);
         Random random = new Random();
         do {
             for (int i = 0; i < 7; i++) {
