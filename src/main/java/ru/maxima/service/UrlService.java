@@ -40,13 +40,21 @@ public class UrlService {
     }
 
     public Url findByShortName(String shortUrl) {
-        return urlRepositories.findByGeneratedUrl(shortUrl).orElse(null);
+        Optional<Url> url = urlRepositories.findByGeneratedUrl(shortUrl);
+        if (url.isPresent()) {
+            return url.get();
+        } else {
+            throw new RuntimeException("This URL not exists");
+        }
     }
 
     @Transactional
-    public void saveClickOnUrl(String shortUrl) {
+    public UrlResponseDTO saveClickOnUrl(String shortUrl) {
+        shortUrl = LOCALHOST + shortUrl;
+        UrlResponseDTO urlResponseDTO = modelMapper.map(findByShortName(shortUrl), UrlResponseDTO.class);
         Url url = urlRepositories.findByGeneratedUrl(shortUrl).orElse(null);
         Objects.requireNonNull(url).setNumberOfClicks(url.getNumberOfClicks() + 1);
+        return urlResponseDTO;
     }
 
     public List<UrlResponseDTO> getStatisticClickOnUrl() {
@@ -59,6 +67,7 @@ public class UrlService {
         Collections.sort(allUrlResponseDto);
         return allUrlResponseDto;
     }
+
 
     private String shortening() {
         StringBuilder url = new StringBuilder();

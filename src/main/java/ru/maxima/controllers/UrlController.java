@@ -44,10 +44,7 @@ public class UrlController {
 
     @GetMapping("/{shortUrl}")
     public RedirectView redirect(@PathVariable String shortUrl) {
-        shortUrl = LOCALHOST + shortUrl;
-        UrlResponseDTO urlResponseDTO = modelMapper.map(urlService.findByShortName(shortUrl), UrlResponseDTO.class);
-        urlService.saveClickOnUrl(shortUrl);
-        return new RedirectView(urlResponseDTO.getOriginalUrl());
+        return new RedirectView(urlService.saveClickOnUrl(shortUrl).getOriginalUrl());
     }
 
     @GetMapping("/allStatistics")
